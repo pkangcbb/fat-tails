@@ -61,3 +61,5 @@ axes[1].set_title(f"Monthly returns — kurtosis: {monthly.kurtosis():.2f}")
 
 plt.tight_layout()
 plt.show()
+
+
