@@ -72,3 +72,22 @@ print(eigenvalues / eigenvalues.sum())
 print("First principal component weights:")
 for ticker, weight in zip(tickers, eigenvectors[:, 0]):
     print(f"{ticker}: {weight:.4f}")
+
+
+
+# get SPY for comparison
+spy = yf.download("SPY", start="2019-01-01", end="2024-12-31", auto_adjust=True)
+spy_returns = spy["Close"].pct_change().dropna().squeeze()
+
+# compute your PC1 time series
+# project each day's demeaned returns onto the first eigenvector
+pc1 = r_demeaned @ eigenvectors[:, 0]
+
+# convert to pandas series with proper dates to align with SPY
+pc1_series = pd.Series(pc1, index=returns.index)
+
+# align dates between pc1 and spy
+aligned = pd.DataFrame({"PC1": pc1_series, "SPY": spy_returns}).dropna()
+
+correlation = aligned["PC1"].corr(aligned["SPY"])
+print(f"Correlation between PC1 and SPY: {correlation:.4f}")
