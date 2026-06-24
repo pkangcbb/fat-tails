@@ -27,7 +27,7 @@ for i in range(len(tickers)):
         text = ax.text(j, i, f"{corr.iloc[i, j]:.2f}", ha="center", va="center", fontsize=10)
 
 ax.set_title("Return correlation matrix")
-plt.show()
+# plt.show()
 
 r = returns.values
 n = len(r)
@@ -91,3 +91,32 @@ aligned = pd.DataFrame({"PC1": pc1_series, "SPY": spy_returns}).dropna()
 
 correlation = aligned["PC1"].corr(aligned["SPY"])
 print(f"Correlation between PC1 and SPY: {correlation:.4f}")
+
+
+
+#SUMMARY
+# Covariance measures the shape of co-movement between 2 stocks' deviations from their own typical behavior (their mean). 
+# High positive covariance means that, as a statistical tendency across many observed days, when one stock has a good day relative to its own normal, the other stock also tends to have a good day relative to its own normal.
+# Covariance does NOT describe whether 2 stocks are moving in the same direction, rather it describes similarity in their shape of movement. So, one stock could be going up and another going down, but their covariance could still be high if they have similar deviation
+
+
+#DAY 3 - Residual Stripping
+
+betas = np.zeros(10)
+for i in range(10):
+    stock_returns = r_demeaned[:, i]
+    beta = np.cov(stock_returns, pc1)[0, 1] /np.var(pc1)
+    betas[i] = beta
+
+print("Betas to PC1 (market factor):")
+for ticker, beta in zip(tickers, betas):
+    print(f"{ticker}: {beta:.4f}")
+
+residuals = np.zeros_like(r_demeaned)
+for i in range(10):
+    residuals[:, i] = r_demeaned[:, i] - betas[i] * pc1
+
+print("Original correlations:")
+print(np.corrcoef(r_demeaned.T).round(2))
+print("\nResidual correlations after removing PC1:")
+print(np.corrcoef(residuals.T).round(2))
