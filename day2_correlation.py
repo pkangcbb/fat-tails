@@ -112,9 +112,18 @@ print("Betas to PC1 (market factor):")
 for ticker, beta in zip(tickers, betas):
     print(f"{ticker}: {beta:.4f}")
 
-residuals = np.zeros_like(r_demeaned)
-for i in range(10):
-    residuals[:, i] = r_demeaned[:, i] - betas[i] * pc1
+
+#This version generates a PC1 score combining all 10 stocks and then multiplying by the weights of each stock to get each stocks contribution to PC1
+# residuals = np.zeros_like(r_demeaned)
+# for i in range(10):
+#     residuals[:, i] = r_demeaned[:, i] - betas[i] * pc1
+
+#This is a vectorized version which creates a triangle of vectors with
+# 1. the eigenvector
+# 2. the vector from the origin to the 10-Dimensional returns data point
+# 3. the residual vector which is orthogonal to the eigenvector and points away from it. The length of this vector is the residual.
+# Project 2 onto 1 to get 3.
+residuals = r_demeaned - np.outer(pc1, eigenvectors[:, 0])
 
 print("Original correlations:")
 print(np.corrcoef(r_demeaned.T).round(2))
