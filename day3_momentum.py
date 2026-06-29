@@ -100,3 +100,26 @@ plt.axhline(1, color='gray', linewidth=0.5, linestyle='--')
 plt.title('Momentum Strategy: Gross vs Net of Transaction Costs')
 plt.legend()
 plt.show()
+
+# with lookahead bias — wrong
+biased_returns = (weights * returns).sum(axis=1)
+biased_cumulative = (1 + biased_returns).cumprod()
+biased_sharpe = (biased_returns.mean() / biased_returns.std()) * np.sqrt(252)
+
+# without lookahead bias — correct
+correct_returns = (weights.shift(1) * returns).sum(axis=1)
+correct_cumulative = (1 + correct_returns).cumprod()
+correct_sharpe = (correct_returns.mean() / correct_returns.std()) * np.sqrt(252)
+
+print(f"Biased Sharpe:  {biased_sharpe:.2f}")
+print(f"Correct Sharpe: {correct_sharpe:.2f}")
+
+plt.figure(figsize=(12, 5))
+plt.plot(biased_cumulative.index, biased_cumulative, 
+         label=f'With lookahead bias (Sharpe: {biased_sharpe:.2f})', color='#D85A30')
+plt.plot(correct_cumulative.index, correct_cumulative, 
+         label=f'Correct (Sharpe: {correct_sharpe:.2f})', color='#378ADD')
+plt.axhline(1, color='gray', linewidth=0.5, linestyle='--')
+plt.title('Lookahead Bias: Does it actually matter?')
+plt.legend()
+plt.show()
